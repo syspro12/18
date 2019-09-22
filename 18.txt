@@ -1,0 +1,340 @@
+1)****************************************************************************
+
+#include<stdio.h>
+#include<stdlib.h>
+#include<string.h>
+#define newnode (struct node*)malloc(sizeof(struct node))
+
+struct node
+{
+    char s[80];                                                                        
+    struct node *next,*prev;
+}*head=NULL;
+
+char fname[40];                                                                    
+int cnt=0;
+
+void append(char st[80])                                                       
+    struct node *p=NULL,*new=NULL;
+    if(head==NULL)
+    {
+        head=newnode;
+        strcpy(head->s,st);
+        head->next=head->prev=NULL;                                     
+    }
+    else
+    {
+        for(p=head ; p->next ; p=p->next);                                
+        p->next=newnode;
+        p->next->prev=p;
+        p=p->next;
+        strcpy(p->s,st);
+        p->next=NULL;
+    }
+    ++cnt;                                                                               
+
+
+void move(int pos1,int pos2)                                                
+{
+    int i;
+    char str[80];
+    struct node *p=NULL,*q=NULL;    
+    if(pos1<cnt+1 && pos1>0 && pos2>0 && pos2<=cnt)
+    {
+        for(i=1,q=head ; i<pos1-1 && q->next!=NULL ; i++,q=q->next);
+        p=q->next;
+        q->next=q->next->next;
+        if(p->next!=NULL)
+        q->next->prev=q;
+        q->next=p->next;
+        if(pos1<pos2 && pos2!=cnt)
+        {
+            for(i=1,q=head ; i<pos2-1 && q->next!=NULL ; i++,q=q->next);
+            p->next=q->next;
+            p->next->prev=p;                                                   
+            q->next=p;                                                             
+            q->next->prev=q;
+        }
+        else
+        {
+            for(i=1,q=head ; i<=pos2 -1&& q->next!=NULL ; i++,q=q->next);
+            if(pos2!=cnt)
+            {
+            p->next=q->next;
+            p->next->prev=p;                                                   
+            q->next=p;                                                             
+            q->next->prev=q;
+            }
+            else
+            {                                                                           
+            q->next=p;                                                            
+            p->prev=q;
+            p->next=NULL;
+           }
+        }
+    }
+    else printf("Invalid boundry entered...please use 'h' for help\n");
+}
+
+void load()                                                                                        
+{
+	FILE *fp;
+	char buff[80];
+	fp=fopen(fname,"r");
+	if(fp==NULL)
+	{
+		printf("\nFile %s not found\n",fname);
+		exit(0);
+	}
+	while(fgets(buff,80,fp)!=NULL)                                                     
+	    append(buff);
+	fclose(fp);
+}
+
+void save()                                                                                         
+{
+    FILE *fp;
+    struct node *temp;
+    fp=fopen(fname,"w");
+    if(fp==NULL)
+    {
+        printf("\n error in file opening");
+        return;
+    }
+    else
+    {
+        temp=head;
+        while(temp!=NULL)                                                                    .
+        {
+            fputs(temp->s,fp);
+            fputs("\n",fp);
+            temp=temp->next;
+        }
+    }
+    fclose(fp);
+}
+
+main(int argc,char *argv[0])
+{
+    char cmd[10],str[80],c;
+    FILE *fp;
+    if(argc>1)
+    {
+        strcpy(fname,argv[1]);
+        fp=fopen(fname,"r");
+        if(fp==NULL)
+        {
+            fp=fopen(fname,"w+");
+            fclose(fp);                                                                     
+            printf("\nFile %s is created.\n",fname);
+        }
+        else
+            load();                                                                               
+    }
+    else
+    {
+        printf("Enter file name : ");                                               
+        scanf("%s",fname);
+        fp=fopen(fname,"r");
+        if(fp==NULL)
+        {
+            fp=fopen(fname,"w+");
+            fclose(fp);
+            printf("\nFile %s is created.\n",fname);
+        }
+        else
+            load();
+    }
+    do
+    {
+        int f=0,e=0,t=0;
+        char p[80];
+        printf("\n$ : ");
+        fflush(stdin);
+        gets(cmd);
+        sscanf(cmd," %c %d %d %d",&c,&f,&e,&t);                        
+        if(c=='f')
+            sscanf(cmd," %c %c",&c,p);                                            
+        switch(c)
+        {
+            case 'A' :
+            case 'a' :   printf("\t\tEnter the string . . .\n");
+                            fflush(stdin);
+                            gets(str);
+                            while(strcmp(str,"exit"))
+                            {
+                                 append(str);                                               
+                                 fflush(stdin);
+                                 gets(str);
+                            }break;
+
+                  
+           case 'M' :
+            case 'm' :  if(t==0)    move(f,e);                                           
+                            else
+                            {
+                                if(t>f && t<=cnt)
+                                while(f<=e)
+                                {
+                                    move(f,t);                                                   
+                                    e--;
+                                }
+                                else
+                                while(f<=e)
+                                {
+                                    move(e,t);                                                 
+                                    f++;
+                                }
+                            }break;
+            
+            case 'S' :
+            case 's' :   save(); break;                                                     
+            
+            case 'H' :
+            case 'h' :   printf("\na       : To Append.\nm m n   : Move m th node after n th node.\ns       : Save\nh       : Help\ne       : To Exit.\n");
+                        break;                                                                     
+            
+            case 'E' :
+            case 'e' :   exit(0);                                                              
+            
+            default  :   printf("\nInvalid command..please use 'h' for help\n");
+        }
+    }while(c!='e');  
+    return 0;
+}
+
+
+2)****************************************************************************
+
+#include<stdio.h>
+#include<malloc.h>
+#include<stdlib.h>
+#define newnode (struct node *)malloc(sizeof(struct node))
+struct node
+{
+	int jno,ar_time,br_time,co_time,rem_time,sub_time;
+	struct node * next;
+}*jobq=NULL,*finish=NULL;
+int nj;
+struct node * append(struct node *f,struct node *t)
+{
+	struct node *s;
+	if(f==NULL)
+	f=t;
+	else
+	{
+		for(s=f;s->next!=NULL;s=s->next);
+		s->next=t;
+	}	
+return f;
+}
+void creatjobq()
+{
+	struct node *t;
+	int i;
+	printf("How many jobs???\n");
+	scanf("%d",&nj);
+	for(i=0;i<nj;i++)
+	{
+		t=newnode;
+		t->jno=i+1;
+		t->co_time=0;
+		t->next=NULL;
+		printf("Enter the arival time of job %d",i+1);
+		scanf("%d",&t->ar_time);
+		printf("Enter the burst time of job %d",i+1);
+		scanf("%d",&t->br_time);
+		t->rem_time=t->br_time;
+		t->sub_time=t->ar_time;
+		jobq=append(jobq,t);
+	}
+}
+void display()
+{
+	struct node *s;
+	printf("jno\tar time\tbr time");
+	for(s=jobq;s!=NULL;s=s->next)
+	printf("\n%d\t%d\t%d",s->jno,s->ar_time,s->br_time);
+}
+
+struct node * selectjob(struct node *f,int time)
+{
+	struct node *s,*t=NULL;int min=3678;
+	for(s=f;s!=NULL;s=s->next)
+	{
+	if(s->ar_time<=time)  
+	{
+		if(s->rem_time<min){min=s->rem_time;t=s;}
+		else if(s->rem_time==min && s->ar_time<t->ar_time)t=s;
+	}
+	}
+	return t;
+
+}
+
+void delnode(struct node *s)
+{
+	struct node *t;
+	if(jobq==s)
+	jobq=jobq->next;
+	else
+	{
+	for(t=jobq;t->next!=s;t=t->next);
+		t->next=s->next;
+	}
+	s->next=NULL;
+	finish=append(finish,s);
+	
+}
+
+void execute()
+{
+	struct node *s=NULL,*t;int time=0;
+	int wt=0,tat=0,avgtat=0,avgwt=0;
+	if(jobq==NULL)
+	{
+	printf("\nNO jobs available");
+	return;
+	}
+	printf("\ngant chart");
+	while(jobq!=NULL)
+	{
+		s=selectjob(jobq,time);
+		if(s==NULL){printf("\nidel");time++;}
+		else
+		{
+			time+=s->br_time;
+			if(s->co_time==0)
+			{
+				
+				s->co_time=time;
+				
+			}
+			else
+			{
+				printf("|---%d---|",s->jno);
+				time--;	
+				delnode(s);
+			}
+		}
+	}
+	
+	printf("\nreport");printf("\njobno\tarivrltime\tbursttime\tco time\tTAT\tWT\n");
+	for(t=finish;t!=NULL;t=t->next)
+	{
+		tat=t->co_time-t->sub_time;
+		wt=tat-t->br_time;
+		
+		printf("\n%d\t%d\t\t%d\t\t%d\t%d\t%d\t\n",t->jno,t->sub_time,t->br_time,t->co_time,tat,wt);
+		avgtat+=tat;
+		avgwt+=wt;
+	}
+	printf("average TAT=%f",avgtat/(float)nj);
+	printf("average WT=%f",avgwt/(float)nj);	
+}
+main()
+{
+	creatjobq();
+	display();
+	execute();
+}
